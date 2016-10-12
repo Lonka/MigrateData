@@ -24,8 +24,10 @@ folder=
 ### 來源資料庫
 [Source Database]
 '資料庫類型[Contain:SqlServer][Default:SqlServer]
+
 type=
 '連線字串，啟動後加密[Default:Empty]
+
 connectionString=
 
 ### 目標資料庫

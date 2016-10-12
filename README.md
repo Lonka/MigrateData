@@ -33,13 +33,16 @@ connectionString=
 ```
 
 ### 目標資料庫
+```ini
 [Target Database]
 '資料庫類型[Contain:SqlServer][Default:SqlServer]
 type=
 '連線字串，啟動後加密[Default:Empty]
 connectionString=
+```
 
 ### Log
+```ini
 [Log Setting]
 '每次log的最大字元數(byte)[Default:200]
 retentionDay=
@@ -47,8 +50,10 @@ retentionDay=
 maxLogSize=
 '存放路徑[Default:.\LogFiles]
 path=
+```
 
 ### Task
+```ini
 'Task的section一定要包含「Migrate Task」後面可以自訂
 [Migrate Task Empty]
 '轉檔的形式(大小寫都要對)[Contain:Batch,Sync,Copy,Update][Default:Batch]
@@ -76,6 +81,6 @@ plugIn=
 
 '設定欄位對應  Target Field=Source Field(大小寫都要對)(如果來源值要寫死的話，直接寫tempFieldName(value))
 A=B
-
+```
 
 

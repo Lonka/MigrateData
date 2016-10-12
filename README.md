@@ -15,19 +15,17 @@
 ## INI設定
 
 ### 基本
-[Migrate Setting]
-'時區[Default:0]
+\[Migrate Setting\]
+'時區\[Default:0\]
 timeZone=
-'dll放置的資料夾[Default:Empty]
+'dll放置的資料夾\[Default:Empty\]
 folder=
 
 ### 來源資料庫
 [Source Database]
 '資料庫類型[Contain:SqlServer][Default:SqlServer]
-
 type=
 '連線字串，啟動後加密[Default:Empty]
-
 connectionString=
 
 ### 目標資料庫

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrateDataLib", "MigrateDataLib\MigrateDataLib.csproj", "{88071B96-7F53-49BB-87DB-80CC5E8D80AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrateDataModel", "MigrateDataModel\MigrateDataModel.csproj", "{57C641A2-4A41-4C04-973E-4658A1591CED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Etl", "etl\Etl.csproj", "{192CD75D-FDA2-4EE8-AE80-2C62E578024B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{88071B96-7F53-49BB-87DB-80CC5E8D80AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88071B96-7F53-49BB-87DB-80CC5E8D80AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88071B96-7F53-49BB-87DB-80CC5E8D80AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88071B96-7F53-49BB-87DB-80CC5E8D80AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57C641A2-4A41-4C04-973E-4658A1591CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57C641A2-4A41-4C04-973E-4658A1591CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57C641A2-4A41-4C04-973E-4658A1591CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57C641A2-4A41-4C04-973E-4658A1591CED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{192CD75D-FDA2-4EE8-AE80-2C62E578024B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{192CD75D-FDA2-4EE8-AE80-2C62E578024B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{192CD75D-FDA2-4EE8-AE80-2C62E578024B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{192CD75D-FDA2-4EE8-AE80-2C62E578024B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

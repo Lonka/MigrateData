@@ -15,7 +15,7 @@
 ## INI設定
 
 ### 基本
-```ini
+```INI
 [Migrate Setting]
 '時區[Default:0]
 timeZone=
@@ -24,7 +24,7 @@ folder=
 ```
 
 ### 來源資料庫
-```ini
+```INI
 [Source Database]
 '資料庫類型[Contain:SqlServer][Default:SqlServer]
 type=

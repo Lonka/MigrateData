@@ -10,6 +10,12 @@ namespace MigrateDataModel
         public TaskType TaskType { get; set; }
         public string TaskName { get; set; }
         public string SourceTable { get; set; }
+
+        public string SourceMethod { get; set; }
+
+        public string SourceParam { get; set; }
+
+        public SourceReturnFormat sourceReturnFormat { get; set; }
         public string TargetTable { get; set; }
         public string CheckField { get; set; }
 
@@ -36,13 +42,26 @@ namespace MigrateDataModel
             {
                 if (string.IsNullOrEmpty(SourceTable))
                 {
-                    errorStr += TaskName + ":FromTable not set." + Environment.NewLine;
+                    if(string.IsNullOrEmpty(SourceMethod))
+                    {
+                        errorStr += TaskName + ":SourceTable not set." + Environment.NewLine;
+
+                    }
+                }
+                if(!string.IsNullOrEmpty(SourceMethod))
+                {
+                    if(string.IsNullOrEmpty(SourceParam))
+                    {
+                        errorStr += TaskName + ":SourceParam not set." + Environment.NewLine;
+                    }
                 }
                 if (string.IsNullOrEmpty(TargetTable))
                 {
-                    errorStr += TaskName + ":ToTable not set." + Environment.NewLine;
+                    errorStr += TaskName + ":TargetTable not set." + Environment.NewLine;
                 }
-                if (TaskType == TaskType.Batch || TaskType == MigrateDataModel.TaskType.Update)
+                if (TaskType == TaskType.Batch 
+                    || TaskType == MigrateDataModel.TaskType.Update
+                    || TaskType == MigrateDataModel.TaskType.BatchUpdate)
                 {
                     if (string.IsNullOrEmpty(CheckField))
                     {
@@ -53,6 +72,17 @@ namespace MigrateDataModel
                         errorStr += TaskName + ":CheckType not set." + Environment.NewLine;
                     }
                 }
+                else if (TaskType == MigrateDataModel.TaskType.Sync
+                    || TaskType == MigrateDataModel.TaskType.Update
+                    || TaskType == MigrateDataModel.TaskType.BatchUpdate)
+                {
+                    if(SyncFields.Count == 0)
+                    {
+                        errorStr += TaskName + ":SyncFields not set." + Environment.NewLine;
+                    }
+                }
+
+
 
                 if (Fields == null)
                 {

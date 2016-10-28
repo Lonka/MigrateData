@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LK.Util">
-      <HintPath>..\Lib\LK.Util.dll</HintPath>
+      <HintPath>..\..\..\Shared Lib\LK.Util.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,12 +48,15 @@
     <Compile Include="Model\MigrateTask.cs" />
     <Compile Include="Model\MigrateTaskLastResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Type\DataSourceType.cs" />
+    <Compile Include="Type\SourceReturnFormat.cs" />
     <Compile Include="Type\TaskType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del *.pdb
 del *.xml
+COPY /Y "$(TargetDir)$(TargetName).*" "$(ProjectDir)..\..\..\Shared Lib"
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

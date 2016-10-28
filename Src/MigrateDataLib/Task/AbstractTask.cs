@@ -73,40 +73,10 @@ namespace MigrateDataLib
         #endregion
 
 
-        public virtual DataTable GetSourceNewData(MigrateTask task, MigrateTaskLastResult lastResult)
+
+        public virtual DataTable ArrangeData(MigrateTask task,DataTable dt)
         {
-            List<DbParameter> sourceSqlParam = new List<DbParameter>();
-
-            string whereStr = string.Empty;
-            DbParameter param = LkDaoUtil.GetParameter(Mission.SourceDao.CommonType);
-
-            if (!string.IsNullOrEmpty(task.CheckField.Trim()))
-            {
-                param.ParameterName = task.CheckField+"_P";
-                param.Value = lastResult.LastCheckValue;
-                param.DbType = LkDaoUtil.GetDbType(task.CheckType);
-                sourceSqlParam.Add(param);
-
-                whereStr += string.Format(" and {0}{1}{2} "
-                        , task.CheckField
-                        , (task.CheckEqual ? ">=" : ">")
-                        , task.CheckField.ParseDbParam(Mission.SourceDao.CommonType) + "_P");
-            }
-
-            if (!string.IsNullOrEmpty(task.Condition.Trim()))
-            {
-                whereStr += string.Format(" and {0} ", task.Condition.Trim());
-            }
-
-            //TODO DB一定要檔好重覆問題
-            DataTable sourceData = Mission.SourceDao.GetDataTable(
-                string.Format(" select * from ( select {0}{3} from {1} ) as a where 1=1 {2}"
-                        , task.SourceFieldStr
-                        , task.SourceTable
-                        , whereStr
-                        , (string.IsNullOrEmpty(task.ExtraField) ? string.Empty : "," + task.ExtraField.Trim().Trim(",".ToArray())))
-                , sourceSqlParam);
-            return sourceData;
+            return dt;
         }
 
         public virtual bool DoRetry(MigrateTask task)
@@ -153,7 +123,7 @@ namespace MigrateDataLib
 
         }
 
-        public virtual bool Execute(MigrateTask task,string sql, List<DbParameter> paramList)
+        public virtual bool Execute(MigrateTask task, string sql, List<DbParameter> paramList)
         {
             bool result = false;
             try
@@ -188,7 +158,7 @@ namespace MigrateDataLib
 
                     if (paramList.Count >= ParamSize || i == sourceNewData.Rows.Count - 1)
                     {
-                        string sql = GenFinalSqlStr(task,cmds);
+                        string sql = GenFinalSqlStr(task, cmds);
 
                         if (!Execute(task, sql, paramList))
                         {
@@ -226,7 +196,7 @@ namespace MigrateDataLib
             return LkStringUtil.ConvertInsertString(Mission.TargetDao.CommonType, cmds);
         }
 
-       protected virtual string  GenSingleSqlStr(MigrateTask task, List<DbParameter> paramList, int i, DataRow dr,bool isFirstRow)
+        protected virtual string GenSingleSqlStr(MigrateTask task, List<DbParameter> paramList, int i, DataRow dr, bool isFirstRow)
         {
             string sqlStr = string.Empty;
             string valueStr = string.Empty;
@@ -248,6 +218,5 @@ namespace MigrateDataLib
         {
             return false;
         }
-
     }
 }

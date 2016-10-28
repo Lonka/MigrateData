@@ -30,8 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LK.Util">
-      <HintPath>..\Lib\LK.Util.dll</HintPath>
+    <Reference Include="LK.Util, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Shared Lib\LK.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="MigrateDataModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Shared Lib\MigrateDataModel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -43,25 +48,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataConvert\CSVConvert.cs" />
+    <Compile Include="DataConvert\DataConvertFactory.cs" />
+    <Compile Include="DataConvert\DataTableConvert.cs" />
+    <Compile Include="DataConvert\IDataConvert.cs" />
+    <Compile Include="DataConvert\JSONConvert.cs" />
+    <Compile Include="DataConvert\XMLConvert.cs" />
+    <Compile Include="DataSource\DbSource.cs" />
+    <Compile Include="DataSource\FileSource.cs" />
+    <Compile Include="DataSource\IDataSource.cs" />
+    <Compile Include="DataSource\WebServiceSource.cs" />
     <Compile Include="MigrateData.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TaskFactory\AbstractTask.cs" />
-    <Compile Include="TaskFactory\BatchTask.cs" />
-    <Compile Include="TaskFactory\CopyTask.cs" />
-    <Compile Include="TaskFactory\SyncTask.cs" />
-    <Compile Include="TaskFactory\UpdateTask.cs" />
+    <Compile Include="Task\AbstractTask.cs" />
+    <Compile Include="Task\BatchTask.cs" />
+    <Compile Include="Task\BatchUpdateTask.cs" />
+    <Compile Include="Task\CopyTask.cs" />
+    <Compile Include="Task\SyncTask.cs" />
+    <Compile Include="Task\UpdateTask.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MigrateDataModel\MigrateDataModel.csproj">
-      <Project>{57c641a2-4a41-4c04-973e-4658a1591ced}</Project>
-      <Name>MigrateDataModel</Name>
-    </ProjectReference>
+    <None Include="mes_1.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del *.pdb
-del *.xml</PostBuildEvent>
+del *.xml
+COPY /Y "$(TargetDir)*.*" "$(ProjectDir)..\DeltaBEMSSystemService\bin\Debug\MigrateDataLib"
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

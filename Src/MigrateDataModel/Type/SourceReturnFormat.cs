@@ -5,12 +5,11 @@ using System.Text;
 
 namespace MigrateDataModel
 {
-    public enum TaskType
+    public enum SourceReturnFormat
     {
-        Batch,
-        Sync,
-        Copy,
-        Update,
-        BatchUpdate
+        DataTable,
+        XML,
+        JSON,
+        CSV
     }
 }

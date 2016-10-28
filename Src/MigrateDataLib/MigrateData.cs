@@ -9,10 +9,12 @@ using LK.Util;
 using System.Data.Common;
 using MigrateDataModel;
 
+
 namespace MigrateDataLib
 {
     public class MigrateData
     {
+
         private static Dictionary<string, MigrateMission> m_migrateMessions = new Dictionary<string, MigrateMission>();
 
         private Parameter m_param = new Parameter();
@@ -61,6 +63,7 @@ namespace MigrateDataLib
 
         public string DoTask(string strInput)
         {
+
             string errorStr = string.Empty;
             bool result = false;
             try
@@ -75,7 +78,7 @@ namespace MigrateDataLib
                 {
                     Mission.Log.WriteLog(LogLevel.Infomation, "MigrateData.DoTask", MissionKey + "-" + task.TaskName + " start.");
 
-                    AbstractTask taskFactory = GetFactory(task.TaskType);
+                    AbstractTask taskFactory = GetTaskFactory(task.TaskType);
 
                     taskFactory.DoRetry(task);
 
@@ -87,7 +90,14 @@ namespace MigrateDataLib
                         {
                             lastResult = taskResults.FirstOrDefault();
 
-                            DataTable sourceData = taskFactory.GetSourceNewData(task, lastResult);
+                            IDataSource dataSource = GetDataSourceFactory(Mission.DataSourceType);
+                            DataTable sourceData = dataSource.GetSourceNewData(Mission, task, lastResult);
+                            if (sourceData == null)
+                            {
+                                Mission.Log.WriteLog(LogLevel.Warning, "MigrateData.GetSourceNewData", "sourceData is null");
+                                break;
+                            }
+                            sourceData = taskFactory.ArrangeData(task, sourceData);
                             foreach (DataTable dt in GetLimitMigrateRows(sourceData, MigrateRowSize))
                             {
                                 DataTable groupDt = dt;
@@ -96,7 +106,7 @@ namespace MigrateDataLib
                                     continue;
                                 }
                                 var lastCheckValue = task.CheckBeginValue;
-                                if (task.TaskType == TaskType.Batch || task.TaskType == TaskType.Update)
+                                if (task.TaskType == TaskType.Batch || task.TaskType == TaskType.Update || task.TaskType == TaskType.BatchUpdate)
                                 {
                                     lastCheckValue = groupDt.AsEnumerable().Max(item => item[task.CheckField]);
                                 }
@@ -131,7 +141,7 @@ namespace MigrateDataLib
                                 if (groupDt != null && groupDt.Rows.Count > 0)
                                 {
                                     taskFactory.DoMigrate(task, groupDt);
-                                    if (task.TaskType == TaskType.Batch || task.TaskType == TaskType.Update)
+                                    if (task.TaskType == TaskType.Batch || task.TaskType == TaskType.Update || task.TaskType == TaskType.BatchUpdate)
                                     {
                                         lastResult.LastCheckValue = lastCheckValue;
                                     }
@@ -175,6 +185,8 @@ namespace MigrateDataLib
 
         }
 
+
+
         private IEnumerable<DataTable> GetLimitMigrateRows(DataTable sourceData, int rowCount)
         {
             DataTable result = sourceData.Clone();
@@ -189,7 +201,7 @@ namespace MigrateDataLib
             }
         }
 
-        private AbstractTask GetFactory(TaskType taskType)
+        private AbstractTask GetTaskFactory(TaskType taskType)
         {
             AbstractTask result = null;
             switch (taskType)
@@ -205,6 +217,29 @@ namespace MigrateDataLib
                     break;
                 case TaskType.Update:
                     result = new UpdateTask(m_param);
+                    break;
+                case TaskType.BatchUpdate:
+                    result = new BatchUpdateTask(m_param);
+                    break;
+                default:
+                    break;
+            }
+            return result;
+        }
+
+        private IDataSource GetDataSourceFactory(DataSourceType dataSourceType)
+        {
+            IDataSource result = null;
+            switch (dataSourceType)
+            {
+                case DataSourceType.DB:
+                    result = new DbSource();
+                    break;
+                case DataSourceType.WebService:
+                    result = new WebServiceSource();
+                    break;
+                case DataSourceType.FileServer:
+                    result = new FileSource();
                     break;
                 default:
                     break;
@@ -300,6 +335,7 @@ namespace MigrateDataLib
                 #region Source Database DAO
 
                 string sourceConnStr = LkIni.GetProfileString("Source Database", "connectionString", string.Empty);
+                Mission.SourceConnectString = sourceConnStr;
                 if (LkEncryptDecrypt.IsEncrypt(sourceConnStr))
                 {
                     LkEncryptDecrypt.Decrypt(sourceConnStr, out sourceConnStr);
@@ -318,9 +354,17 @@ namespace MigrateDataLib
                     errorStr = "From Database:connectionString not set.";
                     return result;
                 }
-
-                CommonType fromType = (CommonType)LkIni.GetProfileEnum(typeof(CommonType), "Source Database", "type", "SqlServer");
-                Mission.SourceDao = new LkDaoInstance(sourceConnStr, fromType, null);
+                object dataSourceTypeObj = LkIni.GetProfileEnum(typeof(DataSourceType), "Source Database", "type", "");
+                if (dataSourceTypeObj == null)
+                {
+                    Mission.DataSourceType = DataSourceType.DB;
+                    CommonType sourceType = (CommonType)LkIni.GetProfileEnum(typeof(CommonType), "Source Database", "type", "SqlServer");
+                    Mission.SourceDao = new LkDaoInstance(sourceConnStr, sourceType, null);
+                }
+                else
+                {
+                    Mission.DataSourceType = (DataSourceType)dataSourceTypeObj;
+                }
                 #endregion
 
                 #region Target Database DAO
@@ -345,8 +389,8 @@ namespace MigrateDataLib
                     errorStr = "To Database:connectionString not set.";
                     return result;
                 }
-                CommonType toType = (CommonType)LkIni.GetProfileEnum(typeof(CommonType), "Target Database", "type", "SqlServer");
-                Mission.TargetDao = new LkDaoInstance(targetConnStr, toType, null);
+                CommonType targetType = (CommonType)LkIni.GetProfileEnum(typeof(CommonType), "Target Database", "type", "SqlServer");
+                Mission.TargetDao = new LkDaoInstance(targetConnStr, targetType, null);
                 #endregion
 
                 #region Get Task
@@ -430,6 +474,9 @@ namespace MigrateDataLib
                 migrateTask.TaskName = migrateName;
                 migrateTask.TaskType = (TaskType)LkIni.GetProfileEnum(typeof(TaskType), migrateName, "taskType", "Batch");
                 migrateTask.SourceTable = LkIni.GetProfileString(migrateName, "sourceTable", string.Empty);
+                migrateTask.SourceMethod = LkIni.GetProfileString(migrateName, "sourceMethod", string.Empty);
+                migrateTask.SourceParam = LkIni.GetProfileString(migrateName, "sourceParam", "$CheckField");
+                migrateTask.sourceReturnFormat = (SourceReturnFormat)LkIni.GetProfileEnum(typeof(SourceReturnFormat), migrateName, "sourceReturnFormat", "DataTable");
                 migrateTask.TargetTable = LkIni.GetProfileString(migrateName, "targetTable", string.Empty);
                 migrateTask.CheckField = LkIni.GetProfileString(migrateName, "checkField", string.Empty);
                 migrateTask.CheckEqual = LkIni.GetProfileBool(migrateName, "checkEqual", false);
@@ -439,7 +486,7 @@ namespace MigrateDataLib
 
                 string syncField = LkIni.GetProfileString(migrateName, "syncField", string.Empty);
                 string typeStr = LkIni.GetProfileString(migrateName, "checkType", "datetime");
-                if(string.IsNullOrEmpty(typeStr))
+                if (string.IsNullOrEmpty(typeStr))
                 {
                     typeStr = "datetime";
                 }
@@ -479,7 +526,10 @@ namespace MigrateDataLib
 
                 if (migrateTask.Check(out errorStr))
                 {
-                    result = true;
+                    if (Mission.CheckTask(migrateTask, out errorStr))
+                    {
+                        result = true;
+                    }
                 }
             }
             catch (Exception e)
@@ -533,6 +583,9 @@ namespace MigrateDataLib
             List<string> excludeKeys = new List<string>();
             excludeKeys.Add("taskType".ToUpper());
             excludeKeys.Add("sourceTable".ToUpper());
+            excludeKeys.Add("sourceMethod".ToUpper());
+            excludeKeys.Add("sourceParam".ToUpper());
+            excludeKeys.Add("sourceReturnFormat".ToUpper());
             excludeKeys.Add("targetTable".ToUpper());
             excludeKeys.Add("checkField".ToUpper());
             excludeKeys.Add("checkType".ToUpper());
